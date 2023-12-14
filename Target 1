@@ -1,24 +1,15 @@
-- name: Install and configure mysql on target2
-  hosts: target2
+- name: Install and configure apache2 on target1
+  hosts: target1
   become: yes
-  vars:
-    mysql_root_password: secret
   tasks:
-    - name: Install mysql
+    - name: Install apache2
       apt:
-        name: mysql-server
+        name: apache2
         state: present
         update_cache: yes
-    - name: Secure mysql installation
-      community.mysql.mysql_secure_installation:
-        login_password: "{{ mysql_root_password }}"
-        user: root
-        login_host: localhost
-        login_user: root
-        login_port: 3306
-    - name: Enable mysql service
+    - name: Enable apache2 service
       service:
-        name: mysql
+        name: apache2
         state: started
         enabled: yes
     - name: Install ufw
@@ -33,8 +24,8 @@
         rule: allow
         port: 22
         proto: tcp
-    - name: Allow mysql on ufw
+    - name: Allow http on ufw
       community.general.ufw:
         rule: allow
-        port: 3306
+        port: 80
         proto: tcp
