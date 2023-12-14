@@ -2,39 +2,39 @@
   hosts: target2
   become: yes
   vars:
-    mysql_root_password: secret
+    db_name: mydb
+    db_user: myuser
+    db_pass: mypass
   tasks:
-    - name: Install mysql
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: present
+        update_cache: yes
+    - name: Install mysql-server
       apt:
         name: mysql-server
         state: present
-        update_cache: yes
-    - name: Secure mysql installation
-      community.mysql.mysql_secure_installation:
-        login_password: "{{ mysql_root_password }}"
-        user: root
-        login_host: localhost
-        login_user: root
-        login_port: 3306
-    - name: Enable mysql service
-      service:
-        name: mysql
-        state: started
-        enabled: yes
-    - name: Install ufw
-      apt:
-        name: ufw
+    - name: Create database
+      mysql_db:
+        name: "{{ db_name }}"
+        state: present
+    - name: Create user
+      mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        priv: "{{ db_name }}.*:ALL"
         state: present
     - name: Enable ufw
-      community.general.ufw:
+      ufw:
         state: enabled
-    - name: Allow ssh on ufw
-      community.general.ufw:
+    - name: Allow ssh
+      ufw:
         rule: allow
-        port: 22
+        name: ssh
         proto: tcp
-    - name: Allow mysql on ufw
-      community.general.ufw:
+    - name: Allow mysql
+      ufw:
         rule: allow
         port: 3306
         proto: tcp
