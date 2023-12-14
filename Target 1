@@ -2,30 +2,25 @@
   hosts: target1
   become: yes
   tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: present
+        update_cache: yes
     - name: Install apache2
       apt:
         name: apache2
         state: present
-        update_cache: yes
-    - name: Enable apache2 service
-      service:
-        name: apache2
-        state: started
-        enabled: yes
-    - name: Install ufw
-      apt:
-        name: ufw
-        state: present
     - name: Enable ufw
-      community.general.ufw:
+      ufw:
         state: enabled
-    - name: Allow ssh on ufw
-      community.general.ufw:
+    - name: Allow ssh
+      ufw:
         rule: allow
-        port: 22
+        name: ssh
         proto: tcp
-    - name: Allow http on ufw
-      community.general.ufw:
+    - name: Allow http
+      ufw:
         rule: allow
         port: 80
         proto: tcp
